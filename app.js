@@ -11,7 +11,7 @@ $('#show-search').on('submit', function(event){
   $('.search-state').val("");
   var date = $('.search-date').val();
   BIT.search(city, state, date)
-  var results = $.get('https://maps.googleapis.com/maps/api/geocode/json?address='+city+',+'+state+'&key='+apiKeys.googleMaps+')';
+  var results = $.get('https://maps.googleapis.com/maps/api/geocode/json?address='+city+',+'+state+'&key='+apiKeys.googleMaps);
   var coordinates = results.done(function(data){
     var coordinates = data.results[0].geometry.location
     map.setCenter(new google.maps.LatLng( {center:{lat: coordinates.lat, lng: coordinates.lng}, zoom: 12} ) );

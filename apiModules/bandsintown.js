@@ -9,7 +9,7 @@ var BIT = (function(){
     $.ajax({
       type: 'GET',
       dataType: 'jsonp',
-      url: 'http://api.bandsintown.com/events/search.json?location='+location+'&radius=30&date='+date+'&app_id=ENGAGED_AUDIENCES'
+      url: 'http://api.bandsintown.com/events/search.json?location='+location+'&radius=30&date='+date+'&app_id='+apiKeys.bandsInTown
     }).done(function(data){
       parseShows(data);
       console.log("BIT request complete");
