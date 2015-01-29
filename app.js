@@ -2,6 +2,51 @@ var instagramApiCallCount = 0;
 var twitterApiCallCount = 0;
 var facebookApiCallCount = 0;
 
+
+
+
+
+console.log("app.js is available...");
+
+
+
+$('#show-search').on('submit', function(event){
+  event.preventDefault();
+  console.log(this);
+})
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // Search BandsInTown for show data
 $('#show-search').on('submit', function(event){
   event.preventDefault();
@@ -19,10 +64,18 @@ $('#show-search').on('submit', function(event){
   });
 });
 
-$('#show-media').on('submit', function(event){
-  event.preventDefault();
-  findMatch(BIT.shows, Instagram.media);
-})
+
+
+
+
+
+
+
+
+
+
+
+
 
 var findMatch = function (shows, media) {
   var matchedPairs = [];
