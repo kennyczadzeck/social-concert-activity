@@ -1,8 +1,10 @@
 var apiKeys = require('myModules/apiKeys');
-var bandsInTown = require('myModules/bandsInTown');
+var bandsInTownModule = require('myModules/bandsInTown');
+var instagramModule = require('myModules/instagram');
 var express = require('express');
 
-var BIT = new bandsInTown();
+var BIT = new bandsInTownModule();
+var instagram = new instagramModule();
 var router = express.Router();
 
 
@@ -13,7 +15,8 @@ router.get('/', function(req, res) {
 
 router.get('/bandsInTown', function(req, res){
   var data = req.query;
-  BIT.search(data.city, data.state, data.date, BIT.parseShows);
+  BIT.search(data.city, data.state, data.date, instagram.findLocationIds);
+  //instagram.getToken();
   res.sendStatus(200);
 })
 
