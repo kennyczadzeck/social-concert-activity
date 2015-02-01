@@ -1,10 +1,11 @@
 var apiKeys = require('myModules/apiKeys');
 var bandsInTownModule = require('myModules/bandsInTown');
-var instagramModule = require('myModules/instagram');
+var mapsModule = require('myModules/maps');
 var express = require('express');
 
+var Maps = new mapsModule();
 var BIT = new bandsInTownModule();
-var instagram = new instagramModule();
+var Instagram = require('myModules/instagram');
 var router = express.Router();
 
 
@@ -12,10 +13,16 @@ var router = express.Router();
 router.get('/', function(req, res) {
   res.render('index', {apiKeys: apiKeys});
 });
+  
+router.get('/googleMaps', function(req, res){
+  Maps.load(function(data){
+    res.send(data);
+  });
+})
 
 router.get('/bandsInTown', function(req, res){
   var data = req.query;
-  BIT.search(data.city, data.state, data.date, instagram.findLocationIds);
+  BIT.search(data.city, data.state, data.date, Instagram.findLocationIds);
   //instagram.getToken();
   res.sendStatus(200);
 })
