@@ -22,7 +22,7 @@ router.get('/googleMaps', function(req, res){
 
 router.get('/bandsInTown', function(req, res){
   var data = req.query;
-  BIT.search(data.city, data.state, data.date, Instagram.findLocationIds);
+  BIT.search(data.city, data.state, data.date, Instagram.gatherShowMedia);
   //instagram.getToken();
   res.sendStatus(200);
 })
