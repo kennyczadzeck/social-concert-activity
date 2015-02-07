@@ -1,4 +1,4 @@
-var apiKeys = require('myModules/apiKeys');
+var apiKeys = require('../myModules/apiKeys');
 var requestify = require('requestify');
 
 module.exports = function(){
@@ -22,7 +22,7 @@ module.exports = function(){
           });
           parsedShows.push(showInfo);
         };
-        callback(parsedShows, date);    
+        callback(parsedShows);    
       });
     };
 
