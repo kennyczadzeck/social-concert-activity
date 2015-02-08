@@ -2,10 +2,9 @@ var apiKeys = require('../myModules/apiKeys');
 var requestify = require('requestify');
 
 
-  // 1.)
   var gatherAllMedia = function(showsArray, date, callback) {
-    var minTimeStamp = Date.parse(date)/1000 + 43200;
-    var maxTimeStamp = Date.parse(date)/1000 + 86400;
+    var minTimeStamp = Date.parse(date)/1000 + 54000
+    var maxTimeStamp = Date.parse(date)/1000 + 97200
     var stackCount = 0;
     var resultsArray = [];
     //FIND ALL LOCATION IDs FOR VENUES
@@ -15,6 +14,14 @@ var requestify = require('requestify');
         show.instagramLocations = [];
         var venueName = show.venue;
         var coordinates = show.coordinates;
+          if (coordinates.latitude < 1) {
+            var eastOrWest = -1;
+          } else {
+            eastOrWest = 1;
+          }
+        var offset = (eastOrWest * coordinates.longitude * 24 / 360) * 3600;
+        console.log(show.city);
+        console.log(offset);
         requestify.get('https://api.instagram.com/v1/locations/search?lat='+coordinates.latitude+'&lng='+coordinates.longitude+'&access_token='+apiKeys.instagramToken)
         .then(function(allLocations) {
           var parsedLocationData = JSON.parse(allLocations.body);

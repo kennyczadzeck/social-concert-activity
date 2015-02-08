@@ -34,7 +34,7 @@ var createTitle = function(artistsArray, venueName, callback) {
     callStack -= 1;
     title.push('<li>'+artist+'</li>');
     if(callStack === 0) {
-      title.push('</li>');
+      title.push('</ul>');
       callback(title);
     }
   });
@@ -70,15 +70,13 @@ $(function() {
           console.log(res);
           res.forEach(function(show) {
             createTitle(show.artists, show.venue, function(title) {
-              console.log(title);
               makeGallery(show.instagramMedia, function(gallery) {
-                console.log(gallery);
-                var showTitle = title.join("");
-                var showGallery = gallery.join("");
-                var showContent = showTitle.concat(showGallery);
-                console.log(showContent);
+                var div = ['<div>','</div>'];
+                var titleAndGallery = title.concat(gallery).join("");
+                div.splice(1,0,titleAndGallery)
+                var allContent = div.join("");
                 var contentWindow = new google.maps.InfoWindow({
-                  content: showContent
+                  content: allContent
                 });
                 var marker = new google.maps.Marker({
                   position: {lat: show.coordinates.latitude, lng: show.coordinates.longitude},
