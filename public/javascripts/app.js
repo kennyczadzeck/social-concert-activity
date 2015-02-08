@@ -15,7 +15,31 @@ google.maps.event.addDomListener(window, 'load', initialize);
 
 function eqfeed_callback(results) {
   map.data.addGeoJson(results);
-}  
+}
+
+var makeGallery = function(instaObjArray, callback) {
+  var gallery = [];
+  instaObjArray.forEach(function(object) {
+    gallery.push('<img src="'+object.images.thumbnail.url+'">')
+    if(gallery.length === instaObjArray.length) {
+      callback(gallery)
+    }
+  });
+}
+
+var createTitle = function(artistsArray, venueName, callback) {
+  var callStack = artistsArray.length;
+  var title = ['<h3>'+venueName+'</h3>', '<ul>'];
+  artistsArray.forEach(function(artist) {
+    callStack -= 1;
+    title.push('<li>'+artist+'</li>');
+    if(callStack === 0) {
+      title.push('</li>');
+      callback(title);
+    }
+  });
+}
+
 
 // DOCUMENT.READY
 $(function() {
@@ -45,19 +69,28 @@ $(function() {
         success: function(res){
           console.log(res);
           res.forEach(function(show) {
-            var imageURL = show.instagramMedia[0].images.low_resolution.url
-            var contentWindow = new google.maps.InfoWindow({
-              content: "<img src="+imageURL+">"
+            createTitle(show.artists, show.venue, function(title) {
+              console.log(title);
+              makeGallery(show.instagramMedia, function(gallery) {
+                console.log(gallery);
+                var showTitle = title.join("");
+                var showGallery = gallery.join("");
+                var showContent = showTitle.concat(showGallery);
+                console.log(showContent);
+                var contentWindow = new google.maps.InfoWindow({
+                  content: showContent
+                });
+                var marker = new google.maps.Marker({
+                  position: {lat: show.coordinates.latitude, lng: show.coordinates.longitude},
+                  map: newMap,
+                  title: show.artists[0]
+                });
+                google.maps.event.addListener(marker, 'click', function() {
+                  contentWindow.open(newMap,marker);
+                });
+              });
             })
-            var marker = new google.maps.Marker({
-              position: {lat: show.coordinates.latitude, lng: show.coordinates.longitude},
-              map: newMap,
-              title: show.artists[0]
-            });
-            google.maps.event.addListener(marker, 'click', function() {
-              contentWindow.open(newMap,marker);
-            });
-          })
+          });
         }
       });
 
