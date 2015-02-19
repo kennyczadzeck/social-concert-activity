@@ -1,4 +1,3 @@
-
 function initialize() {
   navigator.geolocation.getCurrentPosition(function(data) {
     var mapOptions = {
@@ -6,6 +5,7 @@ function initialize() {
       center: {lat: data.coords.latitude, lng: data.coords.longitude},
       mapTypeId: 'roadmap'
     };
+
     return new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
   });
 }
@@ -17,34 +17,13 @@ function eqfeed_callback(results) {
   map.data.addGeoJson(results);
 }
 
-var makeGallery = function(instaObjArray, callback) {
-  var gallery = [];
-  instaObjArray.forEach(function(object) {
-    gallery.push('<img src="'+object.images.thumbnail.url+'">')
-    if(gallery.length === instaObjArray.length) {
-      callback(gallery)
-    }
-  });
-}
-
-var createTitle = function(artistsArray, venueName, callback) {
-  var callStack = artistsArray.length;
-  var title = ['<h3>'+venueName+'</h3>', '<ul>'];
-  artistsArray.forEach(function(artist) {
-    callStack -= 1;
-    title.push('<li>'+artist+'</li>');
-    if(callStack === 0) {
-      title.push('</ul>');
-      callback(title);
-    }
-  });
-}
-
-
 // DOCUMENT.READY
 $(function() {
 
+  // $("#blocker").hide();
+
   $('#show-search').on('submit', function(event){
+    $("#blocker").show();
     event.preventDefault();
     var formData = {
       city: $(this).find('input[name="city"]').val(),
@@ -54,7 +33,8 @@ $(function() {
     formData.city = formData.city.toLowerCase();
     formData.region = formData.region.toLowerCase();
 
-    $.get('https://maps.googleapis.com/maps/api/geocode/json?address='+formData.city+',+'+formData.region+'&key=AIzaSyDADcp3AczDleifGLCOrAusMgPq_GUyXR4', function(response){
+    $.get('https://maps.googleapis.com/maps/api/geocode/json?address='+formData.city+',+'+formData.region+'&key=AIzaSyDADcp3AczDleifGLCOrAusMgPq_GUyXR4', 
+      function(response){
       var coordinates = response.results[0].geometry.location;
       var mapOptions = {
           zoom: 11,
@@ -68,32 +48,78 @@ $(function() {
         data: formData,
         success: function(res){
           console.log(res);
-          res.forEach(function(show) {
-            createTitle(show.artists, show.venue, function(title) {
-              makeGallery(show.instagramMedia, function(gallery) {
-                var div = ['<div>','</div>'];
-                var titleAndGallery = title.concat(gallery).join("");
-                div.splice(1,0,titleAndGallery)
-                var allContent = div.join("");
-                var contentWindow = new google.maps.InfoWindow({
-                  content: allContent
+          // $("#blocker").hide();
+
+          // Create data sets for Handlebars to use
+          res.forEach(function(showObj) {
+            showObj.title = function(showObj) {
+              var venue = showObj.venue+" - ";
+              for (var i = 0; i < showObj.artists.length; i++) {
+                if(showObj.artists[i+1]) {
+                  var add = showObj.artists[i]+", "
+                  venue = venue.concat(add);
+                } else if(i > 0){
+                  var add = "and "+showObj.artists[i]
+                  venue = venue.concat(add);
+                } else {
+                  venue = venue.concat(showObj.artists[i]);
+                }
+              };
+              return venue
+            }(showObj)
+            showObj.parsedMedia = [];
+            showObj.media.forEach(function(mediaObj) {
+              if(mediaObj.type === "image") {
+                showObj.parsedMedia.push({
+                  type: "image",
+                  content: mediaObj.images.standard_resolution.url,
+                  link: mediaObj.link
                 });
-                var marker = new google.maps.Marker({
-                  position: {lat: show.coordinates.latitude, lng: show.coordinates.longitude},
-                  map: newMap,
-                  title: show.artists[0]
+              } else if(mediaObj.type === "video") {
+                showObj.parsedMedia.push({
+                  type: "video",
+                  content: mediaObj.videos.standard_resolution.url,
+                  link: mediaObj.link
                 });
-                google.maps.event.addListener(marker, 'click', function() {
-                  contentWindow.open(newMap,marker);
-                });
-              });
-            })
+              }
+            });
+
+            // Create Google Maps markers
+            var marker = new google.maps.Marker({
+              context: showObj,
+              position: {lat: showObj.coordinates.latitude, lng: showObj.coordinates.longitude},
+              map: newMap,
+              title: showObj.venue
+            });
+
+            // Add DOM listeners to open modals
+            google.maps.event.addListener(marker, 'click', function() {
+              $.ajax({
+                url: 'javascripts/handlebars.template',
+                cache: true,
+                success: function(loadedTemplate) {
+                  var show = marker.context;
+                  var source = loadedTemplate;
+                  var template = Handlebars.compile(source);
+                  $('#myModal').html(template(show));
+                  $('#myModal').modal('show');
+                }               
+              });    
+            });
           });
         }
       });
-
-      return newMap
     });
   });
+
+  $('#instagram_tab').on('click', function (event) {
+    event.preventDefault()
+    $(this).tab('show')
+  });
+
+  $('#twitter_tab').on('click', function (event) {
+    event.preventDefault()
+    $(this).tab('show')
+  })
 
 });

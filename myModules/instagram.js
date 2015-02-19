@@ -1,87 +1,113 @@
 var apiKeys = require('../myModules/apiKeys');
 var requestify = require('requestify');
+var Q = require('q');
 
+var apiCount = {
+  location: 0,
+  media: 0
+};
 
-  var gatherAllMedia = function(showsArray, date, callback) {
-    var minTimeStamp = Date.parse(date)/1000 + 54000
-    var maxTimeStamp = Date.parse(date)/1000 + 97200
-    var stackCount = 0;
-    var resultsArray = [];
-    //FIND ALL LOCATION IDs FOR VENUES
-    showsArray.forEach(function(show) {
-      !function(show) {
-        show.instagramMedia = [];
-        show.instagramLocations = [];
-        var venueName = show.venue;
-        var coordinates = show.coordinates;
-          if (coordinates.latitude < 1) {
-            var eastOrWest = -1;
-          } else {
-            eastOrWest = 1;
-          }
-        var offset = (eastOrWest * coordinates.longitude * 24 / 360) * 3600;
-        console.log(show.city);
-        console.log(offset);
-        requestify.get('https://api.instagram.com/v1/locations/search?lat='+coordinates.latitude+'&lng='+coordinates.longitude+'&access_token='+apiKeys.instagramToken)
-        .then(function(allLocations) {
-          var parsedLocationData = JSON.parse(allLocations.body);
-          var locationObjects = parsedLocationData.data
+var InstagramLocationsURL = function(show){
+  apiCount.location++
+  return 'https://api.instagram.com/v1/locations/search?lat=' +
+  show.coordinates.latitude+'&lng='+show.coordinates.longitude+
+  '&access_token='+apiKeys.instagramToken;
+}
 
-          // CHECK VENUE NAME AND LOCATION NAMES FOR MATCHES
-          locationObjects.forEach(function(location) {
-            !function(location, show) {
-              compareNames(venueName, location.name, function(match) {
-                if(match === true) {
-                  show.instagramLocations.push(location.id);
-                  stackCount += 1;
+var InstagramMediaURL = function(locationId, show) {
+  apiCount.media++
+  return 'https://api.instagram.com/v1/locations/'+locationId+
+  '/media/recent?min_timestamp='+show.date.minTime+'&max_timestamp='+
+  show.date.maxTime+'&count=35&access_token='+apiKeys.instagramToken;
+}
 
-                  // GET MEDIA LINKS
-                  requestify.get('https://api.instagram.com/v1/locations/'+location.id+'/media/recent?min_timestamp='+minTimeStamp+'&max_timestamp='+maxTimeStamp+'&access_token='+apiKeys.instagramToken)
-                  .done(function(data) {
-                    stackCount -= 1;
-                    var media = JSON.parse(data.body);
-                    if(media.data.length > 0) {
-                      var mediaStack = media.data.length;
-                      media.data.forEach(function(post) {
-                        show.instagramMedia.push(post);
-                        mediaStack -= 1;
-                      });
-                      if(mediaStack === 0) {
-                        resultsArray.push(show)
-                      }
-                    }
+var compareNames = function(name1, name2, callback){
+  var names = [name1, name2];
+  names.forEach(function(name){
+    name = name.toLowerCase().replace(("\'"||"'"), "").split(" ");
+    name[0] === "the" ? name.shift() : null;
+  });
+  return names[0][0] === names[1][0] ? callback(true) : callback(false);
+};
 
-                    // RETURN WHEN STACK IS CLEARED
-                    if(stackCount === 0) {
-                      callback(resultsArray);
-                    }
-                  });
-                }
-              });
-            }(location, show);
-          });
-        });
-      }(show);
+var parseLocations = function(locationsResponse, show) {
+  var parsedLocationData = JSON.parse(locationsResponse.body);
+  var locations = parsedLocationData.data;
+  locations.forEach(function(location) {
+    compareNames(show.venue, location.name, function(match) {
+      match === true ? show.locationIds.push(location.id) : null;
     });
-  };  
+  });
+}
 
-  var compareNames = function(name1, name2, callback){
-    var names = [name1, name2];
-    var newNames = [];
-    names.forEach(function(name){
-      name = name.toLowerCase().replace(("\'"||"'"), "").split(" ");
-      if (name[0] === "the") {
-        name.shift();
+var getLocationIds = function(show) {
+  show.locationIds = show.locationIds || [];
+  return requestify.get(InstagramLocationsURL(show));
+}
+
+var getMedia = function(locationId, show) {
+  return requestify.get(InstagramMediaURL(locationId, show))
+}
+
+var queryAllLocations = function(show, callback) {
+  show.media = show.media || [];
+  var mediaPromiseArray = show.locationIds.map(function(location) {
+    var mediaQueryPromise = getMedia(location, show);
+    mediaQueryPromise.then(function(mediaResponse) {
+      var parsedMedia = JSON.parse(mediaResponse.body);
+      if(parsedMedia.data.length > 0) {
+        show.media = show.media.concat(parsedMedia.data);
       }
-      newNames.push(name);
-    })
-    if (newNames[0][0] === newNames[1][0]){
-      return callback(true)
-    } else {
-      return callback(false)
-    }
-  };
+    });
+    return mediaQueryPromise
+  });
+  return Q.allSettled(mediaPromiseArray);
+}
 
+var addTimeStampsToShows = function(showsArray, date) {
+  var eastOrWest = showsArray[0].coordinates.longitude < 1 ? -1 : 1;
+  var offset = Math.ceil(eastOrWest * showsArray[0].coordinates.longitude * 24 / 360 * 3600);
+  showsArray.forEach(function(show) {
+    show.date = {};
+    show.date.minTime = Date.parse(date)/1000 + 64800 + offset;
+    show.date.maxTime = Date.parse(date)/1000 + 97200 + offset;
+  });
+  return showsArray;
+}
+
+var dataCollection = function(show) {
+  var deferred = Q.defer();
+  getLocationIds(show)
+    .then(function(locationsResponse) {
+      parseLocations(locationsResponse, show);
+    })
+    .then(function() {  
+      queryAllLocations(show)
+        .then(function() {
+          deferred.resolve(show);
+        })
+      })
+    .catch(function(error) {
+      console.log(error);
+    })
+  return deferred.promise;
+}
+
+var gatherAllMedia = function(showsArray, date, callback) {
+  var arrayWithTimeStamps = addTimeStampsToShows(showsArray, date); 
+  var populatedShowsArray = arrayWithTimeStamps.map(function(show) {
+    return dataCollection(show);
+  });
+  return Q.allSettled(populatedShowsArray)
+          .then(function(results){
+            var finalArray = [];
+            results.forEach(function(result) {
+              result.value.media.length > 0 ? finalArray.push(result.value) : null;
+            });
+            console.log(apiCount);
+            callback(finalArray);
+          });
+}
 
 module.exports = {
   gatherAllMedia: gatherAllMedia
