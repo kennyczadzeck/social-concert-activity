@@ -1,5 +1,5 @@
 var apiKeys = require('../myModules/apiKeys') || {
-  instagramToken: process.env.instagramToken,
+  instagramToken: process.env.instagramToken
 };
 
 var requestify = require('requestify');

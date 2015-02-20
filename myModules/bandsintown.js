@@ -1,7 +1,6 @@
 var apiKeys = require('../myModules/apiKeys') || {
   bandsInTown: process.env.bandsInTown
 }
-var apiKeys = require('../myModules/apiKeys');
 var requestify = require('requestify');
 
 module.exports = function(){
