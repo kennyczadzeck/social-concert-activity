@@ -2,24 +2,17 @@ var apiKeys = require('../myModules/apiKeys');
 var requestify = require('requestify');
 var Q = require('q');
 
-var apiCount = {
-  location: 0,
-  media: 0
-};
-
 var InstagramLocationsURL = function(show){
-  apiCount.location++
   return 'https://api.instagram.com/v1/locations/search?lat=' +
   show.coordinates.latitude+'&lng='+show.coordinates.longitude+
   '&access_token='+apiKeys.instagramToken;
 }
-
+;
 var InstagramMediaURL = function(locationId, show) {
-  apiCount.media++
   return 'https://api.instagram.com/v1/locations/'+locationId+
   '/media/recent?min_timestamp='+show.date.minTime+'&max_timestamp='+
   show.date.maxTime+'&count=35&access_token='+apiKeys.instagramToken;
-}
+};
 
 var compareNames = function(name1, name2, callback){
   var names = [name1, name2];
@@ -38,16 +31,16 @@ var parseLocations = function(locationsResponse, show) {
       match === true ? show.locationIds.push(location.id) : null;
     });
   });
-}
+};
 
 var getLocationIds = function(show) {
   show.locationIds = show.locationIds || [];
   return requestify.get(InstagramLocationsURL(show));
-}
+};
 
 var getMedia = function(locationId, show) {
   return requestify.get(InstagramMediaURL(locationId, show))
-}
+};
 
 var queryAllLocations = function(show, callback) {
   show.media = show.media || [];
@@ -62,7 +55,7 @@ var queryAllLocations = function(show, callback) {
     return mediaQueryPromise
   });
   return Q.allSettled(mediaPromiseArray);
-}
+};
 
 var addTimeStampsToShows = function(showsArray, date) {
   var eastOrWest = showsArray[0].coordinates.longitude < 1 ? -1 : 1;
@@ -73,7 +66,7 @@ var addTimeStampsToShows = function(showsArray, date) {
     show.date.maxTime = Date.parse(date)/1000 + 97200 + offset;
   });
   return showsArray;
-}
+};
 
 var dataCollection = function(show) {
   var deferred = Q.defer();
@@ -89,9 +82,9 @@ var dataCollection = function(show) {
       })
     .catch(function(error) {
       console.log(error);
-    })
+    });
   return deferred.promise;
-}
+};
 
 var gatherAllMedia = function(showsArray, date, callback) {
   var arrayWithTimeStamps = addTimeStampsToShows(showsArray, date); 
@@ -107,7 +100,7 @@ var gatherAllMedia = function(showsArray, date, callback) {
             console.log(apiCount);
             callback(finalArray);
           });
-}
+};
 
 module.exports = {
   gatherAllMedia: gatherAllMedia

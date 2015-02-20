@@ -14,11 +14,6 @@ router.get('/', function(req, res) {
   res.render('index', {apiKeys: apiKeys});
 });
   
-router.get('/googleMaps', function(req, res){
-  Maps.load(function(data){
-    res.send(data);
-  });
-})
 
 router.get('/bandsInTown', function(req, res){
   var data = req.query;
@@ -28,7 +23,6 @@ router.get('/bandsInTown', function(req, res){
     })
   });
 })
-
 
 
 /* GET Userlist page (w/ data from Mongo) */
