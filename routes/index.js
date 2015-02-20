@@ -1,9 +1,7 @@
-var apiKeys = require('../myModules/apiKeys');
-var bandsInTownModule = require('../myModules/bandsInTown');
-var mapsModule = require('../myModules/maps');
+var apiKeys = process.env.apiKeys || require('../myModules/apiKeys');
+var bandsInTownModule = require('../myModules/bandsintown');
 var express = require('express');
 
-var Maps = new mapsModule();
 var BIT = new bandsInTownModule();
 var Instagram = require('../myModules/instagram');
 var router = express.Router();
@@ -23,17 +21,5 @@ router.get('/bandsInTown', function(req, res){
     })
   });
 })
-
-
-/* GET Userlist page (w/ data from Mongo) */
-// router.get('/userlist', function(req, res){
-//   var db = req.rb;
-//   var collection = db.get('usercollection');
-//   collection.find({},{}, function(e, docs){
-//     res.render('userlist', {
-//       "userlist": docs
-//     });
-//   });
-// });
 
 module.exports = router;

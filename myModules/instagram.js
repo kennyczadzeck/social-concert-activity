@@ -1,4 +1,4 @@
-var apiKeys = require('../myModules/apiKeys');
+var apiKeys = process.env.apiKeys || require('../myModules/apiKeys');
 var requestify = require('requestify');
 var Q = require('q');
 
