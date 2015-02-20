@@ -8,7 +8,7 @@ var requestify = require('requestify');
 
 module.exports = function(){
 
-  var BIT = function(date) {
+  var BIT = function(date, location) {
     return 'http://api.bandsintown.com/events/search.json?location='+
     location+'&radius=30&date='+date+'&app_id='+apiKeys.bandsInTown  
   };
@@ -17,7 +17,7 @@ module.exports = function(){
   this.search = function(city, state, date, callback){
     var parsedShows = [];
     var location = city.replace(" ", "+").concat(",", state);
-    requestify.get(BIT(date))
+    requestify.get(BIT(date, location))
     .then(function(data){
       var shows = JSON.parse(data.body);
       var idCounter = 1;

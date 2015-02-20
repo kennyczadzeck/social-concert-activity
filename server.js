@@ -7,9 +7,9 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 
 // MongoDB connections - stored in 'data' folder under project folder root
-var mongo = require('mongodb');
-var monk = require('monk');
-var db = monk('localhost:27017/socialConcerts');
+// var mongo = require('mongodb');
+// var monk = require('monk');
+// var db = monk('localhost:27017/socialConcerts');
 
 // Establishing Middleware
 var routes = require('./routes/index');
@@ -18,10 +18,10 @@ var routes = require('./routes/index');
 var app = express();
 
 // Make MongoDB accessible to router
-app.use(function(req, res, next){
-    req.db = db;
-    next();
-});
+// app.use(function(req, res, next){
+//     req.db = db;
+//     next();
+// });
 
 app.use(express.static(__dirname + '/public/'));
 
@@ -52,6 +52,8 @@ app.use(function(req, res, next) {
 // will print stacktrace
 if (app.get('env') === 'development') {
     app.use(function(err, req, res, next) {
+        console.log("ERROR HANDLER");
+        console.log(err);
         res.status(err.status || 500);
         res.render('error', {
             message: err.message,
@@ -64,6 +66,8 @@ if (app.get('env') === 'development') {
 // no stacktraces leaked to user
 app.use(function(err, req, res, next) {
     res.status(err.status || 500);
+    console.log("ERROR HANDLER");
+    console.log(err);
     res.render('error', {
         message: err.message,
         error: {}

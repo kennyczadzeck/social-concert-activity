@@ -102,7 +102,6 @@ var gatherAllMedia = function(showsArray, date, callback) {
             results.forEach(function(result) {
               result.value.media.length > 0 ? finalArray.push(result.value) : null;
             });
-            console.log(apiCount);
             callback(finalArray);
           });
 };
