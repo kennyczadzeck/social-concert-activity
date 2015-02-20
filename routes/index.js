@@ -1,4 +1,8 @@
-var apiKeys = process.env.apiKeys || require('../myModules/apiKeys');
+var apiKeys = require('../myModules/apiKeys') || {
+  instagramToken: process.env.instagramToken,
+  googleMaps: process.env.googleMaps,
+  bandsInTown: process.env.bandsInTown
+};
 var bandsInTownModule = require('../myModules/bandsintown');
 var express = require('express');
 
