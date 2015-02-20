@@ -1,7 +1,4 @@
-var apiKeys = require('../myModules/apiKeys') || {
-  instagramToken: process.env.instagramToken
-};
-
+var apiKeys.instagramToken: process.env.instagramToken;
 var requestify = require('requestify');
 var Q = require('q');
 

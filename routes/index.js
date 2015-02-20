@@ -1,19 +1,14 @@
-var apiKeys = require('../myModules/apiKeys') || {
-  instagramToken: process.env.instagramToken,
-  googleMaps: process.env.googleMaps,
-  bandsInTown: process.env.bandsInTown
-};
 var bandsInTownModule = require('../myModules/bandsintown');
+var Instagram = require('../myModules/instagram');
 var express = require('express');
 
 var BIT = new bandsInTownModule();
-var Instagram = require('../myModules/instagram');
 var router = express.Router();
 
 
 /* GET home page. */
 router.get('/', function(req, res) {
-  res.render('index', {apiKeys: apiKeys});
+  res.render('index');
 });
   
 
