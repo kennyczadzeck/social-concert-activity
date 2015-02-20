@@ -1,4 +1,9 @@
-var apiKeys.instagramToken = process.env.instagramToken;
+if(process.env.NODE_ENV === "development") {
+ require('../myModules/apiKeys'); 
+}
+var apiKeys = {
+  instagramToken: process.env.instagramToken
+};
 var requestify = require('requestify');
 var Q = require('q');
 
@@ -6,8 +11,8 @@ var InstagramLocationsURL = function(show){
   return 'https://api.instagram.com/v1/locations/search?lat=' +
   show.coordinates.latitude+'&lng='+show.coordinates.longitude+
   '&access_token='+apiKeys.instagramToken;
-}
-;
+};
+
 var InstagramMediaURL = function(locationId, show) {
   return 'https://api.instagram.com/v1/locations/'+locationId+
   '/media/recent?min_timestamp='+show.date.minTime+'&max_timestamp='+

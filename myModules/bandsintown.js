@@ -1,4 +1,9 @@
-var apiKeys.bandsInTown = process.env.bandsInTown;
+if(process.env.NODE_ENV === "development") {
+ require('../myModules/apiKeys'); 
+}
+var apiKeys = {
+  bandsInTown: process.env.bandsInTown
+};
 var requestify = require('requestify');
 
 module.exports = function(){
