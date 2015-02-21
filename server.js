@@ -1,36 +1,23 @@
 // Express dependencies
 var express = require('express');
 var path = require('path');
-var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 
-// MongoDB connections - stored in 'data' folder under project folder root
-// var mongo = require('mongodb');
-// var monk = require('monk');
-// var db = monk('localhost:27017/socialConcerts');
+// Instantiating Express
+var app = express();
 
 // Establishing Middleware
 var routes = require('./routes/index');
 
-// Instantiating Express
-var app = express();
-
-// Make MongoDB accessible to router
-// app.use(function(req, res, next){
-//     req.db = db;
-//     next();
-// });
-
+// Serve public files
 app.use(express.static(__dirname + '/public/'));
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 
-// uncomment after placing your favicon in /public
-//app.use(favicon(__dirname + '/public/favicon.ico'));
 app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -52,7 +39,7 @@ app.use(function(req, res, next) {
 // will print stacktrace
 if (app.get('env') === 'development') {
     app.use(function(err, req, res, next) {
-        console.log("ERROR HANDLER");
+        console.log("DEV ERROR HANDLER");
         console.log(err);
         res.status(err.status || 500);
         res.render('error', {
@@ -66,7 +53,7 @@ if (app.get('env') === 'development') {
 // no stacktraces leaked to user
 app.use(function(err, req, res, next) {
     res.status(err.status || 500);
-    console.log("ERROR HANDLER");
+    console.log("PROD ERROR HANDLER");
     console.log(err);
     res.render('error', {
         message: err.message,
