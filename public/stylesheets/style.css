@@ -1,8 +1,59 @@
-body {
-  padding: 50px;
-  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+html, body, #map-canvas { 
+  height: 100%; 
+  margin: 0; 
+  padding: 0;
 }
 
-a {
-  color: #00B7FF;
+body { 
+  padding-top: 50px;
+}
+
+.navbar {
+  background-color: #000;
+}
+
+.navbar-left {
+  vertical-align: middle;
+}
+
+.navbar-form {
+  padding-top: 7px;
+}
+
+.navbar-text h4, p {
+  display: inline-block;
+  color: #fff;
+}
+
+.navbar-text p {
+  margin-left: 30px;
+}
+
+.navbar-text span {
+  color: red;
+}
+
+#myModal {
+  max-width: none;
+}
+
+#blocker {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: .5;
+  background-color: #000;
+  z-index: 1000;
+}
+#blocker div
+{
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 10%;
+  margin: -1em 0 0 -2.5em;
+  color: #fff;
+  font-weight: bold;
 }

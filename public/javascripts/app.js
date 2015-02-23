@@ -19,13 +19,15 @@ function eqfeed_callback(results) {
 $(function() {
   $("#blocker").hide();
   $('#show-search').on('submit', function(event){
-    // $("#blocker").show();
+    $("#blocker").show();
     event.preventDefault();
     var form = $(this);
     var formData = parseForm(form);
     Maps.getNew(formData);
     Shows.query(formData, function(shows) {
-      Maps.build(shows);
+      Maps.build(shows, function() {
+        $("#blocker").hide();
+      });
     });
   });
 });

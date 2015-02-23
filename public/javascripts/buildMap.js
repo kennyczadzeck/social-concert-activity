@@ -30,6 +30,7 @@ var Maps = (function() {
       });
     });
     addClickListeners(markers)
+    callback();
     return markers
   }
 
