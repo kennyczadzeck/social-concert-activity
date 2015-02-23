@@ -86,6 +86,8 @@ var dataCollection = function(show) {
         })
       })
     .catch(function(error) {
+      console.log("INSTAGRAM FLOW ERROR");
+      console.log(show);
       console.log(error);
     });
   return deferred.promise;

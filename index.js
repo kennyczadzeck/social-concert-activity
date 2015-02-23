@@ -29,8 +29,15 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 // ROUTES
+
+// Get current date to restrict user input
+var currentDate = new Date();
+var day = currentDate.getDate();
+var month = currentDate.getMonth() + 1;
+var year = currentDate.getFullYear();
+var currentDate = year+"-"+month+"-"+day;
 app.get('/', function(req, res) {
-  res.render('index');
+  res.render('index', {maxDate: currentDate});
 });
 
 app.get('/bandsInTown', function(req, res){
@@ -39,5 +46,31 @@ app.get('/bandsInTown', function(req, res){
     Instagram.gatherAllMedia(foundShows, data.date, function(showsWithInstagramData) {
       res.send(showsWithInstagramData)
     });
+  });
+});
+
+// development error handler
+// will print stacktrace
+if (app.get('env') === 'development') {
+  app.use(function(err, req, res, next) {
+    console.log("DEV ERROR HANDLER");
+    console.log(err);
+    res.status(err.status || 500);
+    res.render('error', {
+      message: err.message,
+      error: err
+    });
+  });
+}
+
+// production error handler
+// no stacktraces leaked to user
+app.use(function(err, req, res, next) {
+  res.status(err.status || 500);
+  console.log("PROD ERROR HANDLER");
+  console.log(err);
+  res.render('error', {
+    message: err.message,
+    error: {}
   });
 });

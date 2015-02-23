@@ -14,32 +14,39 @@
 
         <!-- Wrapper for slides -->
           <div class="carousel-inner" role="listbox">
-            <div class="item active">
+            {{#each parsedMedia}}
+            {{#ifCond this.type '===' "image" }}
+            <div class="item">
               <div class="row">
                 <div class="col-lg-6">
-                  <img src="http://scontent-a.cdninstagram.com/hphotos-xaf1/t51.2885-15/e15/10983696_456860807796440_1852419262_n.jpg" width="99%">
+                  <img src="{{this.content}}" width="99%">
                 </div>
                 <div class="col-lg-6" style="backround:white">
-                  <h3>some other content</h3>
-                  <h3>even more content</h3>
+                  {{#if this.caption}}
+                  <h3>{{this.caption}}</h3>
+                  {{/if}}
                 </div>
               </div>
             </div>
+            {{/ifCond}}
+            {{#ifCond this.type '===' "video"}}
             <div class="item">
               <div class="row">
                 <div class="col-lg-6">
                   <video class="center" controls="controls" style="margin:0 auto" width="99%"> 
-                    <source src="http://scontent-b.cdninstagram.com/hphotos-xfa1/t50.2886-16/10992497_1529007977386770_1783749824_n.mp4" type="video/mp4">
+                    <source src="{{this.content}}" type="video/mp4">
                   </video>
                 </div>
                 <div class="col-lg-6" style="backround:white">
-                  <h3>some other content</h3>
+                  {{#if this.caption}}
+                  <h3>{{this.caption}}</h3>
+                  {{/if}}
                 </div>
               </div>
             </div>
-
- 
-      </div>
+            {{/ifCond}}
+            {{/each}}
+          </div>
       </div>
       <div class="modal-footer">
         <a href="#carousel-example-generic" role="button" data-slide="prev">
