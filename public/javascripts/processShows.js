@@ -61,8 +61,8 @@ var Shows = (function() {
         basicInfo.content = mediaObj.videos.standard_resolution.url
       }
       // update URL for https
-      basicInfo.thumbnail.splice(4, 0, "s")
-      basicInfo.content.splice(4, 0, "s")
+      basicInfo.thumbnail = basicInfo.thumbnail.splice(4, "s");
+      basicInfo.content = basicInfo.content.splice(4, "s");
       return basicInfo
     });
     return parsedMedia
