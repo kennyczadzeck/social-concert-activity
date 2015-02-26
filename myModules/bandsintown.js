@@ -1,16 +1,11 @@
-if(process.env.NODE_ENV === "development") {
- require('../myModules/apiKeys'); 
-}
-var apiKeys = {
-  bandsInTown: process.env.bandsInTown
-};
+process.env.NODE_ENV === "development" ? require('../myModules/apiKeys') : null;
+var apiKeys = {bandsInTown: process.env.bandsInTown};
 var requestify = require('requestify');
 
 var BIT = function(date, location) {
   return 'http://api.bandsintown.com/events/search.json?location='+
   location+'&radius=30&date='+date+'&app_id='+apiKeys.bandsInTown  
 };
-
 
 var search = function(city, state, date, callback){
   var parsedShows = [];

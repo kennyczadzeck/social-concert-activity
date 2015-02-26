@@ -1,3 +1,7 @@
+String.prototype.splice = function(index, add) {
+  return this.slice(0, index) + (add || "") + this.slice(index, this.length)
+};
+
 var Shows = (function() {
 
   var query = function(formData, callback) {
@@ -56,6 +60,9 @@ var Shows = (function() {
       } else if(basicInfo.type === "video") {
         basicInfo.content = mediaObj.videos.standard_resolution.url
       }
+      // update URL for https
+      basicInfo.thumbnail.splice(4, 0, "s")
+      basicInfo.content.splice(4, 0, "s")
       return basicInfo
     });
     return parsedMedia

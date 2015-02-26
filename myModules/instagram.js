@@ -1,9 +1,5 @@
-if(process.env.NODE_ENV === "development") {
- require('../myModules/apiKeys'); 
-}
-var apiKeys = {
-  instagramToken: process.env.instagramToken
-};
+process.env.NODE_ENV === "development" ? require('../myModules/apiKeys') : null;
+var apiKeys = {instagramToken: process.env.instagramToken};
 var requestify = require('requestify');
 var Q = require('q');
 
