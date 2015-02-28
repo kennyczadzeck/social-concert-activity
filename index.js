@@ -5,6 +5,7 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var BIT = require('./myModules/bandsintown');
 var Instagram = require('./myModules/instagram');
+var Mongo = require('./myModules/mongo');
 
 // Instantiating Express
 var app = express();
@@ -44,6 +45,9 @@ app.get('/bandsInTown', function(req, res){
   var data = req.query;
   BIT.search(data.city, data.state, data.date, function(foundShows) {
     Instagram.gatherAllMedia(foundShows, data.date, function(showsWithInstagramData) {
+      Mongo.insert(currentDate, showsWithInstagramData, function() {
+        console.log("database saved results");
+      });
       res.send(showsWithInstagramData)
     });
   });
