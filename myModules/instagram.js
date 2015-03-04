@@ -1,5 +1,7 @@
 process.env.NODE_ENV === "development" ? require('../myModules/apiKeys') : null;
 var apiKeys = {instagramToken: process.env.instagramToken};
+var mongoose = require('mongoose');
+var Venue = require('../models/venue');
 var requestify = require('requestify');
 var Q = require('q');
 
@@ -24,13 +26,33 @@ var compareNames = function(name1, name2, callback){
   return names[0][0] === names[1][0] ? callback(true) : callback(false);
 };
 
-var parseLocations = function(locationsResponse, show) {
+var parseLocations = function(locationsResponse, show, callback) {
   var parsedLocationData = JSON.parse(locationsResponse.body);
   var locations = parsedLocationData.data;
   locations.forEach(function(location) {
     compareNames(show.venue, location.name, function(match) {
       match === true ? show.locationIds.push(location.id) : null;
     });
+  });
+  callback ? callback(show) : null;
+};
+
+var saveVenueInfo = function(show) {
+  var newVenue = new Venue({
+    name: show.venue,
+    city: show.city,
+    region: show.region,
+    coordinates: {
+      latitude: show.coordinates.latitude,
+      longitude: show.coordinates.longitude
+    },
+    locationIds: {
+      instagram: show.locationIds
+    }
+  });
+  newVenue.save(function(err) {
+    if(err) throw err;
+    console.log("saved "+ show.venue);
   });
 };
 
@@ -73,7 +95,9 @@ var dataCollection = function(show) {
   var deferred = Q.defer();
   getLocationIds(show)
     .then(function(locationsResponse) {
-      parseLocations(locationsResponse, show);
+      parseLocations(locationsResponse, show, function(venue) {
+        saveVenueInfo(venue);
+      });
     })
     .then(function() {  
       queryAllLocations(show)
